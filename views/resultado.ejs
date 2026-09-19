@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Resultado de Ticket - Hospital Esperanza</title>
+</head>
+<body style="font-family: Arial, sans-serif; margin: 40px; background-color: #f0f4f8;">
+
+    <div style="background: white; padding: 25px; border-radius: 8px; max-width: 500px; margin: auto; text-align: center; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+        <% if (encontrado) { %>
+            <h2 style="color: #28a745;">Ticket #<%= paciente.numero_ticket %> Válido</h2>
+            <p style="font-size: 18px;"><strong>Paciente:</strong> <%= paciente.nombre_paciente %></p>
+            <p style="font-size: 16px; color: #555;"><strong>Edad:</strong> <%= paciente.edad %> años | <strong>Género:</strong> <%= paciente.genero %></p>
+            
+            <div style="background-color: #e8f4f8; border: 2px solid #004b87; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <h3 style="margin: 0; color: #004b87;">Diríjase al área de:</h3>
+                <h1 style="margin: 10px 0; color: #004b87; font-size: 32px;"><%= paciente.departamento %></h1>
+                <p style="margin: 0; color: #555;">Ubicación: <strong><%= paciente.habitacion %></strong></p>
+            </div>
+        <% } else { %>
+            <h2 style="color: #d9534f;">Ticket #<%= ticket %> no encontrado</h2>
+            <p>Por favor verifique su número de ticket o consulte en secretaría.</p>
+        <% } %>
+        
+        <br>
+        <a href="/" style="background-color: #004b87; color: white; text-decoration: none; padding: 10px 20px; border-radius: 5px; display: inline-block;">Volver al inicio</a>
+    </div>
+
+</body>
+</html>

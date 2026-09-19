@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Cita Agendada - Hospital Esperanza</title>
+</head>
+<body style="font-family: Arial, sans-serif; margin: 40px; background-color: #f0f4f8;">
+
+    <div style="background: white; padding: 25px; border-radius: 8px; max-width: 500px; margin: auto; text-align: center; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+        <h2 style="color: #28a745;">¡Cita Asignada Exitosamente!</h2>
+        <p style="font-size: 18px;">Su registro ha sido guardado con la Cita <strong>#<%= id_cita %></strong>.</p>
+
+        <div style="text-align: left; background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 15px 0;">
+            <p><strong>Paciente:</strong> <%= nombre %></p>
+            <p><strong>Edad:</strong> <%= edad %> años | <strong>Género:</strong> <%= genero %></p>
+            <% if (nombre_tutor) { %>
+                <p><strong>Tutor Responsable:</strong> <%= nombre_tutor %></p>
+            <% } %>
+            <p><strong>Departamento Asignado:</strong> <span style="color: #004b87; font-weight: bold;"><%= departamento %></span></p>
+        </div>
+
+        <p style="color: #555; font-size: 14px;">Por favor, aguarde en la sala de espera a ser llamado por su nombre.</p>
+
+        <br>
+        <a href="/" style="background-color: #004b87; color: white; text-decoration: none; padding: 10px 20px; border-radius: 5px; display: inline-block;">Volver al Inicio</a>
+    </div>
+
+</body>
+</html>
