@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Centro Médico Integra | Portal de Salud Digital</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Barra Superior -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-icon">✚</div>
+      <div class="brand-title">
+        Centro Médico Integra
+        <small>Portal de Atención Digital</small>
+      </div>
+    </div>
+    <div class="user-area">
+      <div class="user-badge">
+        <div class="avatar">DP</div>
+        <div class="user-info">
+          <strong>Diego Pérez</strong>
+          <span>Exp: #2025-8849</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Menú Lateral -->
+    <aside>
+      <div>
+        <div class="nav-group-label">Principal</div>
+        <button class="nav-item active" data-page="inicio"><span class="icon">🏠</span> Inicio</button>
+        <button class="nav-item" data-page="agendar"><span class="icon">📅</span> Agendar Cita</button>
+        <button class="nav-item" data-page="citas"><span class="icon">📋</span> Mis Citas <span class="badge-count" id="navBadge">0</span></button>
+        
+        <div class="nav-group-label">Servicios al Paciente</div>
+        <button class="nav-item" data-page="especialidades"><span class="icon">🩺</span> Motivos de Consulta</button>
+        <button class="nav-item" data-page="historial"><span class="icon">📁</span> Historial Clínico</button>
+        <button class="nav-item" data-page="resultados"><span class="icon">🔬</span> Laboratorio y Exámenes</button>
+        <button class="nav-item" data-page="recetas"><span class="icon">💊</span> Recetas y Medicamentos</button>
+        
+        <div class="nav-group-label">Configuración</div>
+        <button class="nav-item" data-page="perfil"><span class="icon">👤</span> Mi Perfil</button>
+      </div>
+      
+      <div class="support-box">
+        <strong>¿Necesitas Ayuda?</strong>
+        <p style="margin:0 0 8px 0;">Central de Atención Telefónica:</p>
+        <strong style="color:var(--text-main); font-size:14px;">+502 2200 0000</strong>
+        <span style="font-size:11px;">Lun - Vie: 07:00 a 18:00</span>
+      </div>
+    </aside>
+
+    <!-- Contenido Principal -->
+    <main>
+      <!-- PESTAÑA 1: INICIO -->
+      <section class="panel active" id="page-inicio">
+        <div class="page-header">
+          <div>
+            <p>Bienvenido de nuevo</p>
+            <h1>Hola, Diego Pérez</h1>
+          </div>
+          <div class="date-badge" id="currentDate"></div>
+        </div>
+
+        <div class="hero-card">
+          <div class="hero-content">
+            <h2>Atención Médica Cercana a tu Alcance</h2>
+            <p>Gestiona tus consultas, revisa tus resultados de laboratorio y consulta tus indicaciones médicas de forma rápida y sencilla.</p>
+            <button class="btn btn-light" data-goto="agendar">📅 Programar Nueva Consulta</button>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <div class="stat-box">
+            <div class="stat-icon">📅</div>
+            <div>
+              <div class="stat-value" id="statUpcoming">0</div>
+              <div class="stat-label">Citas Próximas</div>
+            </div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-icon">🔬</div>
+            <div>
+              <div class="stat-value">3</div>
+              <div class="stat-label">Estudios Recientes</div>
+            </div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-icon">💊</div>
+            <div>
+              <div class="stat-value">0</div>
+              <div class="stat-label">Recetas Activas</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 28px;">
+          <h3 style="color: var(--primary); font-size: 18px; margin-bottom: 16px;">Acceso Rápido</h3>
+          <div class="grid-4">
+            <button class="quick-card" data-goto="agendar">
+              <div class="q-icon">📅</div>
+              <h4>Agendar Cita</h4>
+              <p>Elige tu motivo de visita</p>
+            </button>
+            <button class="quick-card" data-goto="citas">
+              <div class="q-icon">📋</div>
+              <h4>Mis Consultas</h4>
+              <p>Revisa y gestiona tu agenda</p>
+            </button>
+            <button class="quick-card" data-goto="resultados">
+              <div class="q-icon">🔬</div>
+              <h4>Laboratorio</h4>
+              <p>Consulta tus resultados</p>
+            </button>
+            <button class="quick-card" data-goto="especialidades">
+              <div class="q-icon">🩺</div>
+              <h4>Motivos de Visita</h4>
+              <p>Encuentra ayuda según tu caso</p>
+            </button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:28px;">
+          <div class="card-title">
+            <span>Próxima Consulta Programada</span>
+            <button class="btn btn-outline btn-sm" data-goto="citas">Ver Agenda Completa</button>
+          </div>
+          <div id="homeNextAppointment"></div>
+        </div>
+      </section>
+
+      <!-- PESTAÑA 2: AGENDAR CITA -->
+      <section class="panel" id="page-agendar">
+        <div class="page-header">
+          <div>
+            <p>Reserva en línea</p>
+            <h1>Programar Nueva Consulta</h1>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="stepper">
+            <div class="step active" id="step1">
+              <div class="step-number">1</div>
+              Motivo
+            </div>
+            <div class="step" id="step2">
+              <div class="step-number">2</div>
+              Atención
+            </div>
+            <div class="step" id="step3">
+              <div class="step-number">3</div>
+              Fecha y Hora
+            </div>
+            <div class="step" id="step4">
+              <div class="step-number">4</div>
+              Confirmación
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div>
+              <div id="bookingStep1">
+                <h4 style="margin-top:0; color:var(--primary);">1. ¿Qué tipo de atención necesitas?</h4>
+                <div class="form-group">
+                  <label for="selectSpecialty">Motivo principal de tu visita</label>
+                  <select id="selectSpecialty" class="form-control">
+                    <option value="">-- Selecciona una opción --</option>
+                    <option value="general">Chequeo general o malestar común</option>
+                    <option value="cardio">Dolor en el pecho o control del corazón</option>
+                    <option value="derma">Problemas o revisión en la piel</option>
+                    <option value="pedia">Consulta médica para niños</option>
+                    <option value="gino">Control o salud de la mujer</option>
+                    <option value="trauma">Dolor en huesos, articulaciones o músculos</option>
+                    <option value="gastro">Molestias digestivas o del estómago</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="bookingNotes">Comentarios o síntomas adicionales (Opcional)</label>
+                  <textarea id="bookingNotes" class="form-control" rows="3" placeholder="Describe brevemente cómo te sientes..."></textarea>
+                </div>
+                <div class="notice">
+                  <strong>Atención:</strong> Si presentas una emergencia médica grave, acude inmediatamente al área de urgencias más cercana.
+                </div>
+                <button class="btn btn-primary" id="btnToStep2">Continuar con la selección →</button>
+              </div>
+
+              <div id="bookingStep2" style="display:none;">
+                <h4 style="margin-top:0; color:var(--primary);">2. Selecciona al profesional a cargo</h4>
+                <div id="doctorsContainer"></div>
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                  <button class="btn btn-outline" id="btnBackToStep1">← Volver</button>
+                  <button class="btn btn-primary" id="btnToStep3" disabled>Elegir Fecha →</button>
+                </div>
+              </div>
+
+              <div id="bookingStep3" style="display:none;">
+                <h4 style="margin-top:0; color:var(--primary);">3. Fecha y Horario</h4>
+                <div class="form-group">
+                  <label for="appointmentDate">Fecha deseada</label>
+                  <input type="date" id="appointmentDate" class="form-control">
+                </div>
+                <label style="font-size: 12px; font-weight: 600; color: #475569; display:block; margin-bottom:8px;">Horarios disponibles</label>
+                <div id="slotsContainer" class="slot-grid"></div>
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                  <button class="btn btn-outline" id="btnBackToStep2">← Volver</button>
+                  <button class="btn btn-primary" id="btnToStep4" disabled>Revisar Reserva →</button>
+                </div>
+              </div>
+
+              <div id="bookingStep4" style="display:none;">
+                <h4 style="margin-top:0; color:var(--primary);">4. Confirmar Cita</h4>
+                <div class="notice" id="summaryNotice"></div>
+                <div class="form-group">
+                  <label>Nombre del Paciente</label>
+                  <input class="form-control" value="Diego Pérez" readonly>
+                </div>
+                <div class="form-group">
+                  <label>Teléfono de Contacto</label>
+                  <input class="form-control" id="confirmPhone" value="+502 5555-0192">
+                </div>
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                  <button class="btn btn-outline" id="btnBackToStep3">← Volver</button>
+                  <button class="btn btn-primary" id="btnFinalizeBooking">Confirmar y Guardar Cita</button>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div style="background:#f8fafc; border:1px solid var(--border); border-radius:10px; padding:20px;">
+                <h4 style="margin:0 0 12px; color:var(--primary);">Recomendaciones</h4>
+                <ul style="margin:0; padding-left:18px; font-size:12px; color:var(--text-muted); line-height:1.6;">
+                  <li>Te sugerimos llegar 15 minutos antes de tu cita.</li>
+                  <li>Trae contigo cualquier examen o receta previa si aplica.</li>
+                  <li>Puedes cancelar o cambiar tu horario con anticipación si lo necesitas.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PESTAÑA 3: MIS CITAS -->
+      <section class="panel" id="page-citas">
+        <div class="page-header">
+          <div>
+            <p>Gestión de agenda</p>
+            <h1>Mis Citas Médicas</h1>
+          </div>
+          <button class="btn btn-primary" data-goto="agendar">＋ Nueva Cita</button>
+        </div>
+
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <h3 style="margin:0; font-size:16px; color:var(--primary);">Historial de Consultas</h3>
+            <select id="filterStatus" class="form-control" style="width:auto; padding:6px 12px;">
+              <option value="all">Todas las Citas</option>
+              <option value="Confirmada">Confirmadas</option>
+              <option value="Cancelada">Canceladas</option>
+            </select>
+          </div>
+          <div class="table-responsive">
+            <table id="appointmentsTable">
+              <thead>
+                <tr>
+                  <th>Código / Motivo</th>
+                  <th>Profesional</th>
+                  <th>Fecha & Hora</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- PESTAÑA 4: MOTIVOS DE CONSULTA (ANTES ESPECIALIDADES) -->
+      <section class="panel" id="page-especialidades">
+        <div class="page-header">
+          <div>
+            <p>Guía de atención</p>
+            <h1>¿Qué necesitas consultar?</h1>
+          </div>
+        </div>
+        <div class="grid-3" id="specialtyList"></div>
+      </section>
+
+      <!-- PESTAÑA 5: HISTORIAL CLÍNICO -->
+      <section class="panel" id="page-historial">
+        <div class="page-header">
+          <div>
+            <p>Registro de atenciones</p>
+            <h1>Historial Clínico Resumido</h1>
+          </div>
+        </div>
+        <div class="card">
+          <div style="padding:16px 0; border-bottom:1px solid var(--border);">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong style="color:var(--primary);">Chequeo Preventivo General</strong>
+              <span style="font-size:12px; color:var(--text-muted);">15 Enero 2025</span>
+            </div>
+            <p style="font-size:13px; color:var(--text-muted); margin:6px 0 0;">Evaluación de rutina sin novedades. Signos vitales estables y recomendación de hábitos saludables.</p>
+          </div>
+          <div style="padding:16px 0;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong style="color:var(--primary);">Consulta de Seguimiento</strong>
+              <span style="font-size:12px; color:var(--text-muted);">10 Noviembre 2024</span>
+            </div>
+            <p style="font-size:13px; color:var(--text-muted); margin:6px 0 0;">Revisión de evolución médica satisfactoria. Alta médica otorgada.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- PESTAÑA 6: RESULTADOS DE LABORATORIO -->
+      <section class="panel" id="page-resultados">
+        <div class="page-header">
+          <div>
+            <p>Diagnósticos y estudios</p>
+            <h1>Resultados de Exámenes</h1>
+          </div>
+        </div>
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--border);">
+            <div>
+              <strong style="display:block; color:var(--primary);">Hemograma Completo y Perfil General</strong>
+              <span style="font-size:12px; color:var(--text-muted);">Fecha: 10/02/2025 · Orden #LAB-9921</span>
+            </div>
+            <button class="btn btn-outline btn-sm btn-report" data-title="Hemograma Completo y Perfil General" data-content="Todos los parámetros analizados se encuentran dentro de los rangos de referencia normales.">Ver Informe</button>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--border);">
+            <div>
+              <strong style="display:block; color:var(--primary);">Perfil de Colesterol y Triglicéridos</strong>
+              <span style="font-size:12px; color:var(--text-muted);">Fecha: 22/01/2025 · Orden #LAB-8830</span>
+            </div>
+            <button class="btn btn-outline btn-sm btn-report" data-title="Perfil de Colesterol y Triglicéridos" data-content="Colesterol Total: 185 mg/dL, Triglicéridos: 130 mg/dL. Valores óptimos encontrados.">Ver Informe</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- PESTAÑA 7: RECETAS -->
+      <section class="panel" id="page-recetas">
+        <div class="page-header">
+          <div>
+            <p>Indicaciones médicas</p>
+            <h1>Recetas y Medicamentos</h1>
+          </div>
+        </div>
+        <div class="card" style="text-align:center; padding:40px 20px;">
+          <div style="font-size:36px; margin-bottom:10px;">💊</div>
+          <h4 style="margin:0 0 6px; color:var(--primary);">No hay recetas vigentes</h4>
+          <p style="margin:0; font-size:13px; color:var(--text-muted);">Actualmente no posees indicaciones o recetas médicas activas.</p>
+        </div>
+      </section>
+
+      <!-- PESTAÑA 8: PERFIL -->
+      <section class="panel" id="page-perfil">
+        <div class="page-header">
+          <div>
+            <p>Información personal</p>
+            <h1>Mi Perfil</h1>
+          </div>
+        </div>
+        <div class="card">
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Nombre Completo</label>
+              <input class="form-control" value="Diego Pérez" readonly>
+            </div>
+            <div class="form-group">
+              <label>Número de Expediente</label>
+              <input class="form-control" value="2025-8849" readonly>
+            </div>
+            <div class="form-group">
+              <label>Correo Electrónico</label>
+              <input class="form-control" value="diego.perez@ejemplo.com" readonly>
+            </div>
+            <div class="form-group">
+              <label>Teléfono Registrado</label>
+              <input class="form-control" value="+502 5555-0192" readonly>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modal Dialog -->
+  <div class="modal-backdrop" id="modal">
+    <div class="modal-content">
+      <h3 id="modalTitle" style="margin-top:0; color:var(--primary);"></h3>
+      <p id="modalBody" style="font-size:13px; color:var(--text-muted); line-height:1.5;"></p>
+      <div style="text-align:right; margin-top:20px;">
+        <button class="btn btn-primary" id="btnCloseModal">Entendido</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notificación Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
