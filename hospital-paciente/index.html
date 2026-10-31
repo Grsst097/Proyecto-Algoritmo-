@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediCare Patient Companion - Tu Salud al Alcance</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        patient: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            blue: '#0284c7',
+                            softBg: '#f8fafc'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="h-full flex flex-col font-sans text-slate-700 antialiased bg-slate-50 selection:bg-patient-500 selection:text-white">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3 pointer-events-none"></div>
+
+    <!-- 0. LOGIN / AUTHENTICATION SCREEN -->
+    <div id="login-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900 p-4">
+        <div class="bg-white/95 backdrop-blur-xl rounded-3xl p-8 sm:p-10 max-w-md w-full shadow-2xl border border-white/20 space-y-6">
+            <!-- Brand Logo Header -->
+            <div class="text-center space-y-3">
+                <div class="w-16 h-16 mx-auto bg-gradient-to-tr from-patient-600 to-teal-400 text-white rounded-2xl flex items-center justify-center text-3xl shadow-lg shadow-patient-600/30">
+                    <i class="fa-solid fa-heart-pulse"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">Sistema Médico</h2>
+                    <p class="text-xs text-slate-500 font-medium">Portal de Atención al Cliente</p>
+                </div>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Usuario</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 text-sm">
+                            <i class="fa-solid fa-user"></i>
+                        </span>
+                        <input type="text" id="login-username" required placeholder="Ingresa tu usuario..." class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-patient-500 focus:outline-none text-sm font-medium">
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="block text-xs font-bold text-slate-700">Contraseña</label>
+                        <button type="button" onclick="openForgotPasswordModal()" class="text-xs text-patient-600 hover:text-patient-700 font-semibold transition-colors">¿Olvidaste tu contraseña?</button>
+                    </div>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 text-sm">
+                            <i class="fa-solid fa-lock"></i>
+                        </span>
+                        <input type="password" id="login-password" required placeholder="••••••••" class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-patient-500 focus:outline-none text-sm font-medium">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-patient-600 hover:bg-patient-700 text-white font-bold py-3.5 rounded-xl text-sm shadow-lg shadow-patient-600/30 transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión
+                </button>
+
+                <div class="pt-3 border-t border-slate-100 text-center">
+                    <p class="text-xs text-slate-500">¿No tienes una cuenta aún?</p>
+                    <button type="button" onclick="showRegisterForm()" class="mt-1 text-xs font-bold text-patient-600 hover:text-patient-700 transition-colors">
+                        <i class="fa-solid fa-user-plus mr-1"></i> Crear una Cuenta Nueva
+                    </button>
+                </div>
+            </form>
+
+            <!-- Register Form (Hidden by default) -->
+            <form id="register-form" onsubmit="handleRegister(event)" class="space-y-4 hidden">
+                <div class="bg-patient-50 border border-patient-100 p-3 rounded-xl text-xs text-patient-800 flex items-center gap-2">
+                    <i class="fa-solid fa-sparkles text-patient-600 text-sm"></i>
+                    <span>Crea tu cuenta para comenzar con expediente en blanco.</span>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Nombre de Usuario</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 text-sm">
+                            <i class="fa-solid fa-user"></i>
+                        </span>
+                        <input type="text" id="reg-username" required placeholder="Crea tu nombre de usuario..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-patient-500 focus:outline-none text-sm font-medium">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Contraseña</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 text-sm">
+                            <i class="fa-solid fa-lock"></i>
+                        </span>
+                        <input type="password" id="reg-password" required placeholder="Mínimo 6 caracteres" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-patient-500 focus:outline-none text-sm font-medium">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Teléfono de Contacto (+502)</label>
+                    <div class="flex items-center rounded-xl border border-slate-200 focus-within:ring-2 focus-within:ring-patient-500 overflow-hidden bg-white">
+                        <span class="bg-slate-100 text-slate-600 font-semibold text-xs px-3 py-2.5 border-r border-slate-200 select-none">+502</span>
+                        <input type="tel" id="reg-phone" required placeholder="55443322" pattern="[2-7][0-9]{3}[-\s]?[0-9]{4}" title="Ingrese un número válido de 8 dígitos" class="w-full px-3 py-2 text-sm font-medium focus:outline-none">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-patient-600 hover:bg-patient-700 text-white font-bold py-3.5 rounded-xl text-sm shadow-lg shadow-patient-600/30 transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-user-check"></i> Registrar Cuenta
+                </button>
+
+                <div class="pt-2 text-center">
+                    <button type="button" onclick="showLoginForm()" class="text-xs font-semibold text-slate-500 hover:text-slate-700">
+                        <i class="fa-solid fa-arrow-left mr-1"></i> Volver a Iniciar Sesión
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Mobile & Desktop Wrapper -->
+    <div id="app-wrapper" class="flex flex-col min-h-screen pb-20 md:pb-0 hidden">
+
+        <!-- Top Patient Header -->
+        <header class="bg-white border-b border-slate-100 sticky top-0 z-30 shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
+                <!-- Brand -->
+                <div class="flex items-center gap-3">
+                    <div class="bg-gradient-to-tr from-patient-600 to-teal-400 text-white p-3 rounded-2xl shadow-lg shadow-patient-600/20">
+                        <i class="fa-solid fa-heart-pulse text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-xl text-slate-800 tracking-tight"><span class="text-patient-600 font-extrabold">Sistema Médico</span></h1>
+                        <p class="text-xs text-slate-400 font-medium">Portal de Atención al Cliente</p>
+                    </div>
+                </div>
+
+                <!-- Patient Profile & SOS Emergency Button & Logout -->
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <!-- SOS Button -->
+                    <button onclick="triggerSOSModal()" class="bg-rose-500 hover:bg-rose-600 text-white font-bold px-3 sm:px-4 py-2.5 rounded-xl text-xs sm:text-sm shadow-lg shadow-rose-500/25 flex items-center gap-2 animate-pulse transition-all">
+                        <i class="fa-solid fa-phone-volume text-sm"></i>
+                        <span class="hidden sm:inline">SOS Emergencia</span>
+                    </button>
+
+                    <div class="h-8 w-px bg-slate-200 hidden sm:block"></div>
+
+                    <!-- Profile Info -->
+                    <button onclick="switchTab('perfil')" class="flex items-center gap-3 bg-slate-50 hover:bg-slate-100 p-1.5 pr-3 rounded-xl border border-slate-100 transition-all text-left">
+                        <img id="header-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" alt="Foto Paciente" class="w-9 h-9 rounded-lg object-cover ring-2 ring-patient-500/40">
+                        <div class="hidden sm:block text-left text-xs">
+                            <p id="header-patient-name" class="font-bold text-slate-800">María González</p>
+                            <p id="header-patient-exp" class="text-slate-400">EXP-9021</p>
+                        </div>
+                    </button>
+
+                    <!-- Logout Button -->
+                    <button onclick="handleLogout()" title="Cerrar Sesión" class="w-9 h-9 bg-slate-100 hover:bg-rose-100 hover:text-rose-600 text-slate-500 rounded-xl flex items-center justify-center transition-all">
+                        <i class="fa-solid fa-power-off text-sm"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Desktop Navigation Bar -->
+        <nav class="bg-slate-900 text-white hidden md:block">
+            <div class="max-w-7xl mx-auto px-6 flex items-center justify-between">
+                <div class="flex space-x-1">
+                    <button onclick="switchTab('inicio')" id="nav-inicio" class="nav-btn py-4 px-6 font-semibold text-sm flex items-center gap-2 border-b-2 border-patient-500 text-white transition-all">
+                        <i class="fa-solid fa-house-medical"></i> Evaluador de Síntomas
+                    </button>
+                    <button onclick="switchTab('citas')" id="nav-citas" class="nav-btn py-4 px-6 font-semibold text-sm flex items-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all">
+                        <i class="fa-solid fa-calendar-check"></i> Mis Citas Presenciales
+                    </button>
+                    <button onclick="switchTab('expediente')" id="nav-expediente" class="nav-btn py-4 px-6 font-semibold text-sm flex items-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all">
+                        <i class="fa-solid fa-file-medical"></i> Mi Historial Clínico
+                    </button>
+                    <button onclick="switchTab('perfil')" id="nav-perfil" class="nav-btn py-4 px-6 font-semibold text-sm flex items-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all">
+                        <i class="fa-solid fa-user-gear"></i> Mi Perfil
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Body Content Window -->
+        <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6">
+
+            <!-- 1. TAB: EVALUADOR DE SÍNTOMAS / INICIO -->
+            <section id="tab-inicio" class="tab-content active space-y-6">
+                
+                <!-- Welcome Banner -->
+                <div class="bg-gradient-to-r from-teal-700 via-patient-600 to-patient-blue p-6 sm:p-8 rounded-3xl text-white shadow-xl shadow-patient-600/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+                    <div class="space-y-2">
+                        <span class="bg-white/20 text-white text-xs px-3 py-1 rounded-full font-semibold uppercase tracking-wider backdrop-blur-md">Atención Personalizada</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Hola <span id="welcome-patient-name">María</span>, ¿Cómo te sientes hoy?</h2>
+                        <p class="text-slate-100 text-sm max-w-xl leading-relaxed">Selecciona los síntomas o malestares que experimentas para obtener una recomendación inmediata de atención médica.</p>
+                    </div>
+                    <button onclick="openNewAppointmentModal()" class="shrink-0 bg-white text-patient-700 font-bold px-6 py-3.5 rounded-2xl text-sm shadow-lg hover:bg-slate-50 transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-calendar-plus text-patient-600"></i> Agendar Cita Presencial
+                    </button>
+                </div>
+
+                <!-- Symptom Selector Grid -->
+                <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-lg">¿Qué síntomas tienes en este momento?</h3>
+                            <p class="text-xs text-slate-400">Puedes seleccionar uno o varios síntomas de la lista</p>
+                        </div>
+                        <span class="text-xs font-semibold text-patient-600 bg-patient-50 px-3 py-1 rounded-full" id="selected-symptoms-count">0 seleccionados</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4" id="symptoms-grid">
+                        <!-- Card: Fiebre -->
+                        <div onclick="toggleSymptom(this, 'Fiebre', 'alta')" class="symptom-card cursor-pointer p-4 rounded-2xl border border-slate-200 bg-white hover:border-patient-500 transition-all text-center space-y-2 group">
+                            <div class="w-12 h-12 mx-auto rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-temperature-high"></i>
+                            </div>
+                            <p class="font-semibold text-slate-800 text-sm">Fiebre / Temperatura</p>
+                            <span class="text-[10px] text-slate-400 block">Sensación de calor o escalofríos</span>
+                        </div>
+
+                        <!-- Card: Dolor Cabeza -->
+                        <div onclick="toggleSymptom(this, 'Dolor de Cabeza', 'media')" class="symptom-card cursor-pointer p-4 rounded-2xl border border-slate-200 bg-white hover:border-patient-500 transition-all text-center space-y-2 group">
+                            <div class="w-12 h-12 mx-auto rounded-xl bg-purple-50 text-purple-500 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-brain"></i>
+                            </div>
+                            <p class="font-semibold text-slate-800 text-sm">Dolor de Cabeza</p>
+                            <span class="text-[10px] text-slate-400 block">Migraña o pesadez</span>
+                        </div>
+
+                        <!-- Card: Tos / Garganta -->
+                        <div onclick="toggleSymptom(this, 'Tos y Garganta', 'baja')" class="symptom-card cursor-pointer p-4 rounded-2xl border border-slate-200 bg-white hover:border-patient-500 transition-all text-center space-y-2 group">
+                            <div class="w-12 h-12 mx-auto rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-head-side-cough"></i>
+                            </div>
+                            <p class="font-semibold text-slate-800 text-sm">Tos o Garganta</p>
+                            <span class="text-[10px] text-slate-400 block">Irritación o tos seca</span>
+                        </div>
+
+                        <!-- Card: Estómago -->
+                        <div onclick="toggleSymptom(this, 'Malestar Estomacal', 'media')" class="symptom-card cursor-pointer p-4 rounded-2xl border border-slate-200 bg-white hover:border-patient-500 transition-all text-center space-y-2 group">
+                            <div class="w-12 h-12 mx-auto rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-bacteria"></i>
+                            </div>
+                            <p class="font-semibold text-slate-800 text-sm">Malestar Estomacal</p>
+                            <span class="text-[10px] text-slate-400 block">Náuseas, dolor o acidez</span>
+                        </div>
+
+                        <!-- Card: Fatiga -->
+                        <div onclick="toggleSymptom(this, 'Fatiga / Cansancio', 'baja')" class="symptom-card cursor-pointer p-4 rounded-2xl border border-slate-200 bg-white hover:border-patient-500 transition-all text-center space-y-2 group">
+                            <div class="w-12 h-12 mx-auto rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-battery-quarter"></i>
+                            </div>
+                            <p class="font-semibold text-slate-800 text-sm">Cansancio Extremo</p>
+                            <span class="text-[10px] text-slate-400 block">Falta de energía o cuerpo cortado</span>
+                        </div>
+
+                        <!-- Card: Dolor Pecho / Respiratorio -->
+                        <div onclick="toggleSymptom(this, 'Dificultad Respiratoria', 'alta')" class="symptom-card cursor-pointer p-4 rounded-2xl border border-slate-200 bg-white hover:border-patient-500 transition-all text-center space-y-2 group">
+                            <div class="w-12 h-12 mx-auto rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-lungs"></i>
+                            </div>
+                            <p class="font-semibold text-slate-800 text-sm">Falta de Aire</p>
+                            <span class="text-[10px] text-slate-400 block">Presión o dificultad para respirar</span>
+                        </div>
+
+                        <!-- Card: Dolor Muscular -->
+                        <div onclick="toggleSymptom(this, 'Dolor Muscular', 'baja')" class="symptom-card cursor-pointer p-4 rounded-2xl border border-slate-200 bg-white hover:border-patient-500 transition-all text-center space-y-2 group">
+                            <div class="w-12 h-12 mx-auto rounded-xl bg-indigo-50 text-indigo-500 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-bone"></i>
+                            </div>
+                            <p class="font-semibold text-slate-800 text-sm">Dolor Articular</p>
+                            <span class="text-[10px] text-slate-400 block">Molestias en espalda o articulaciones</span>
+                        </div>
+
+                        <!-- Card: Mareos -->
+                        <div onclick="toggleSymptom(this, 'Mareos', 'media')" class="symptom-card cursor-pointer p-4 rounded-2xl border border-slate-200 bg-white hover:border-patient-500 transition-all text-center space-y-2 group">
+                            <div class="w-12 h-12 mx-auto rounded-xl bg-cyan-50 text-cyan-500 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-spinner"></i>
+                            </div>
+                            <p class="font-semibold text-slate-800 text-sm">Mareos o Vértigo</p>
+                            <span class="text-[10px] text-slate-400 block">Desorientación o visión borrosa</span>
+                        </div>
+                    </div>
+
+                    <!-- Evaluation Action Output Box -->
+                    <div id="triage-output" class="hidden p-6 rounded-2xl border transition-all">
+                        <!-- Dynamic Triage Render -->
+                    </div>
+                </div>
+
+                <!-- Shortcuts Section -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Quick Direct Appointment -->
+                    <div class="bg-gradient-to-br from-patient-50 to-teal-50 p-6 rounded-3xl border border-teal-100 flex items-center justify-between">
+                        <div class="space-y-2">
+                            <span class="text-xs font-bold text-patient-700 uppercase tracking-wider">Atención Médica Presencial</span>
+                            <h4 class="font-bold text-slate-800 text-lg">¿Necesitas evaluación con especialista?</h4>
+                            <p class="text-slate-600 text-xs">Agenda tu consulta presencial de manera rápida seleccionando médico y horario.</p>
+                            <button onclick="openNewAppointmentModal()" class="mt-3 bg-patient-600 hover:bg-patient-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow-md transition-all flex items-center gap-2">
+                                <i class="fa-solid fa-calendar-check"></i> Agendar Cita Presencial
+                            </button>
+                        </div>
+                        <i class="fa-solid fa-hospital-user text-6xl text-patient-600/20 hidden sm:block"></i>
+                    </div>
+
+                    <!-- Hospital Info & Hours Card -->
+                    <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between">
+                        <div class="space-y-2">
+                            <span class="text-xs font-bold text-blue-600 uppercase tracking-wider">Centro Hospitalario</span>
+                            <h4 class="font-bold text-slate-800 text-lg">Horarios y Ubicación</h4>
+                            <p class="text-slate-500 text-xs">Av. Salud Central #450, Edificio de Consulta Externa (Pisos 1 al 4).</p>
+                            <button onclick="showToast('Ubicación: Av. Salud Central #450. Atención Externa: 07:00 AM - 08:00 PM', 'info')" class="mt-3 bg-slate-900 hover:bg-slate-800 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow-md transition-all flex items-center gap-2">
+                                <i class="fa-solid fa-map-location-dot"></i> Ver Horarios & Dirección
+                            </button>
+                        </div>
+                        <i class="fa-solid fa-building-hospital text-6xl text-slate-200 hidden sm:block"></i>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- 2. TAB: MIS CITAS PRESENCIALES -->
+            <section id="tab-citas" class="tab-content space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-xl">Mis Citas Médicas Presenciales</h3>
+                        <p class="text-xs text-slate-400">Revisa tus próximas consultas agendadas en el hospital</p>
+                    </div>
+                    <button onclick="openNewAppointmentModal()" class="w-full sm:w-auto bg-patient-600 hover:bg-patient-700 text-white font-bold px-5 py-3 rounded-2xl text-sm shadow-md shadow-patient-600/20 flex items-center justify-center gap-2 transition-all">
+                        <i class="fa-solid fa-plus"></i> Agendar Cita Presencial
+                    </button>
+                </div>
+
+                <!-- Upcoming Appointments Container -->
+                <div class="space-y-4" id="appointments-patient-list">
+                    <!-- Dynamic Render -->
+                </div>
+            </section>
+
+            <!-- 3. TAB: HISTORIAL Y EXPEDIENTE -->
+            <section id="tab-expediente" class="tab-content space-y-6">
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-6">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-xl">Expediente Clínico Personal</h3>
+                            <p class="text-xs text-slate-400">Resumen de salud, alergias y análisis clínicos</p>
+                        </div>
+                    </div>
+
+                    <!-- Vitals Summary -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
+                            <span class="text-xs text-slate-400 font-semibold block">PRESIÓN ARTERIAL</span>
+                            <span id="exp-bp" class="text-lg font-bold text-slate-800">120/80 mmHg</span>
+                            <span class="text-[10px] text-emerald-600 font-bold block mt-0.5">Óptimo</span>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
+                            <span class="text-xs text-slate-400 font-semibold block">RITMO CARDÍACO</span>
+                            <span id="exp-hr" class="text-lg font-bold text-slate-800">72 lpm</span>
+                            <span class="text-[10px] text-emerald-600 font-bold block mt-0.5">Normal</span>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
+                            <span class="text-xs text-slate-400 font-semibold block">GRUPO SANGUÍNEO</span>
+                            <span id="exp-blood" class="text-lg font-bold text-rose-600">O Rh+</span>
+                            <span class="text-[10px] text-slate-400 block mt-0.5">Verificado</span>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
+                            <span class="text-xs text-slate-400 font-semibold block">ALERGIAS</span>
+                            <span id="exp-allergies" class="text-lg font-bold text-amber-600">Penicilina</span>
+                            <span class="text-[10px] text-amber-600 font-bold block mt-0.5">Alerta Médica</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. TAB: PERFIL Y DATOS PERSONALES -->
+            <section id="tab-perfil" class="tab-content space-y-6">
+                <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-6">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-xl">Mi Perfil de Paciente</h3>
+                            <p class="text-xs text-slate-400">Administra tus datos personales y parámetros de salud</p>
+                        </div>
+                        <span class="text-xs font-bold text-patient-600 bg-patient-50 px-3 py-1 rounded-full border border-patient-100">
+                            <i class="fa-solid fa-user-check mr-1"></i> Cuenta Activa
+                        </span>
+                    </div>
+
+                    <form onsubmit="handleProfileUpdate(event)" class="space-y-6">
+                        <!-- Sección: Información Personal -->
+                        <div>
+                            <h4 class="font-bold text-slate-800 text-sm uppercase tracking-wider mb-3 text-patient-700 flex items-center gap-2">
+                                <i class="fa-solid fa-id-card"></i> Datos Identificativos
+                            </h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nombre Completo</label>
+                                    <input type="text" id="profile-name" placeholder="Escribe tu nombre..." required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-patient-500 focus:outline-none text-sm font-medium">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Género</label>
+                                    <select id="profile-gender" onchange="handleGenderChange()" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-patient-500 focus:outline-none text-sm font-medium bg-white">
+                                        <option value="femenino">Femenino</option>
+                                        <option value="masculino">Masculino</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Número de Expediente / ID</label>
+                                    <input type="text" id="profile-exp" readonly class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-100 text-slate-500 font-semibold text-sm cursor-not-allowed focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Correo Electrónico</label>
+                                    <input type="email" id="profile-email" placeholder="correo@ejemplo.com" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-patient-500 focus:outline-none text-sm font-medium">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Teléfono de Contacto</label>
+                                    <div class="flex items-center rounded-xl border border-slate-200 focus-within:ring-2 focus-within:ring-patient-500 overflow-hidden bg-white">
+                                        <span class="bg-slate-100 text-slate-600 font-semibold text-sm px-3 py-2.5 border-r border-slate-200 select-none">+502</span>
+                                        <input type="tel" id="profile-phone" placeholder="55554444" required pattern="[2-7][0-9]{3}[-\s]?[0-9]{4}" title="Ingrese un número válido de 8 dígitos" class="w-full px-3 py-2.5 text-sm font-medium focus:outline-none">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Fecha de Nacimiento</label>
+                                    <input type="date" id="profile-dob" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-patient-500 focus:outline-none text-sm font-medium">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Contacto de Emergencia</label>
+                                    <input type="text" id="profile-emergency-contact" placeholder="Nombre - Parentesco / Teléfono" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-patient-500 focus:outline-none text-sm font-medium">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sección: Parámetros Médicos Base (Solo Lectura) -->
+                        <div class="border-t border-slate-100 pt-5">
+                            <h4 class="font-bold text-slate-800 text-sm uppercase tracking-wider mb-3 text-patient-700 flex items-center gap-2">
+                                <i class="fa-solid fa-heart-pulse"></i> Información Médica de Referencia
+                            </h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                                <div class="space-y-1">
+                                    <span class="block text-[11px] font-semibold text-slate-400 uppercase">Grupo Sanguíneo</span>
+                                    <span id="profile-blood-display" class="font-bold text-slate-800 text-sm block">O Rh+</span>
+                                </div>
+                                <div class="space-y-1">
+                                    <span class="block text-[11px] font-semibold text-slate-400 uppercase">Presión Habitual</span>
+                                    <span id="profile-bp-display" class="font-bold text-slate-800 text-sm block">120/80 mmHg</span>
+                                </div>
+                                <div class="space-y-1">
+                                    <span class="block text-[11px] font-semibold text-slate-400 uppercase">Ritmo Cardíaco</span>
+                                    <span id="profile-hr-display" class="font-bold text-slate-800 text-sm block">72 lpm</span>
+                                </div>
+                                <div class="space-y-1">
+                                    <span class="block text-[11px] font-semibold text-slate-400 uppercase">Alergias Conocidas</span>
+                                    <span id="profile-allergies-display" class="font-bold text-amber-600 text-sm block">Penicilina</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botón de Guardar Perfil -->
+                        <div class="flex justify-end pt-2">
+                            <button type="submit" class="bg-patient-600 hover:bg-patient-700 text-white font-bold px-6 py-3 rounded-xl text-sm shadow-md transition-all flex items-center gap-2">
+                                <i class="fa-solid fa-floppy-disk"></i> Guardar Cambios de Perfil
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Bottom Mobile Bar -->
+        <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-2 flex justify-around items-center md:hidden z-40 shadow-lg">
+            <button onclick="switchTab('inicio')" id="mobile-nav-inicio" class="flex flex-col items-center gap-1 text-patient-600 font-semibold text-xs p-1">
+                <i class="fa-solid fa-house-medical text-lg"></i>
+                <span>Inicio</span>
+            </button>
+            <button onclick="switchTab('citas')" id="mobile-nav-citas" class="flex flex-col items-center gap-1 text-slate-400 font-semibold text-xs p-1">
+                <i class="fa-solid fa-calendar-check text-lg"></i>
+                <span>Citas</span>
+            </button>
+            <button onclick="switchTab('expediente')" id="mobile-nav-expediente" class="flex flex-col items-center gap-1 text-slate-400 font-semibold text-xs p-1">
+                <i class="fa-solid fa-file-medical text-lg"></i>
+                <span>Expediente</span>
+            </button>
+            <button onclick="switchTab('perfil')" id="mobile-nav-perfil" class="flex flex-col items-center gap-1 text-slate-400 font-semibold text-xs p-1">
+                <i class="fa-solid fa-user-gear text-lg"></i>
+                <span>Perfil</span>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Modal: Agendar Nueva Cita Presencial -->
+    <div id="modal-appointment" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl relative">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+                <div>
+                    <h3 class="font-bold text-slate-800 text-lg">Agendar Cita Presencial</h3>
+                    <p class="text-xs text-slate-400">Elige tu malestar principal para asignarte al especialista adecuado</p>
+                </div>
+                <button onclick="closeAppointmentModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-all">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form onsubmit="handleBookAppointment(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">¿Cuál es tu malestar principal?</label>
+                    <select id="appointment-symptom" onchange="updateDoctorsBySymptom()" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-patient-500 focus:outline-none text-sm font-medium bg-white">
+                        <option value="cabeza">Dolor de Cabeza / Migraña</option>
+                        <option value="estomago">Malestar Estomacal / Digestivo</option>
+                        <option value="respiratorio">Dificultad Respiratoria / Tos</option>
+                        <option value="articulaciones">Dolor Muscular o Articular</option>
+                        <option value="piel">Afección en la Piel / Irritación</option>
+                        <option value="general">Otro síntoma no listado / Chequeo General</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Médico Asignado / Recomendado</label>
+                    <select id="appointment-doctor" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-patient-500 focus:outline-none text-sm font-medium bg-white">
+                        <!-- Dynamic Options -->
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Fecha de Atención</label>
+                        <input type="date" id="appointment-date" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-patient-500 focus:outline-none text-sm font-medium">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Hora Preferida</label>
+                        <select id="appointment-time" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-patient-500 focus:outline-none text-sm font-medium bg-white">
+                            <option value="09:00 AM">09:00 AM</option>
+                            <option value="11:30 AM">11:30 AM</option>
+                            <option value="02:30 PM">02:30 PM</option>
+                            <option value="04:00 PM">04:00 PM</option>
+                            <option value="06:15 PM">06:15 PM</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Detalles Adicionales del Malestar (Opcional)</label>
+                    <textarea id="appointment-notes" rows="2" placeholder="Ej. Llevo 2 días con la molestia y empeora por la tarde..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-patient-500 focus:outline-none text-sm font-medium resize-none"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                    <button type="button" onclick="closeAppointmentModal()" class="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100 transition-all">Cancelar</button>
+                    <button type="submit" class="bg-patient-600 hover:bg-patient-700 text-white font-bold px-6 py-2.5 rounded-xl text-xs shadow-md transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-check"></i> Confirmar Cita
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: SOS Emergencias -->
+    <div id="modal-sos" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 text-center space-y-6 shadow-2xl relative border-2 border-rose-500">
+            <div class="w-20 h-20 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center text-3xl mx-auto animate-bounce">
+                <i class="fa-solid fa-truck-medical"></i>
+            </div>
+            <div class="space-y-2">
+                <h3 class="font-extrabold text-slate-900 text-2xl">¿Es una Emergencia Médica?</h3>
+                <p class="text-xs text-slate-500">Si experimentas dolor severo en el pecho, asfixia o pérdida del conocimiento, solicita asistencia inmediata.</p>
+            </div>
+
+            <div class="space-y-3">
+                <a href="tel:911" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-extrabold py-3.5 rounded-2xl text-base shadow-lg shadow-rose-600/30 flex items-center justify-center gap-3 transition-all">
+                    <i class="fa-solid fa-phone"></i> Llamar al 911 / Urgencias
+                </a>
+                <button onclick="requestHospitalAmbulance()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-2xl text-xs flex items-center justify-center gap-2 transition-all">
+                    <i class="fa-solid fa-hospital-user text-patient-500"></i> Solicitar Ambulancia del Hospital
+                </button>
+            </div>
+
+            <button onclick="closeSOSModal()" class="text-xs text-slate-400 hover:text-slate-600 font-semibold">Cerrar este aviso</button>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script src="js/data.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/navigation.js"></script>
+    <script src="js/profile.js"></script>
+    <script src="js/appointments.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/init.js"></script>
+
+</body>
+</html>
